@@ -1,0 +1,42 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark surgical background -->
+  <rect width="400" height="300" fill="#0a0a0a"/>
+
+  <!-- Brain tissue under blue light -->
+  <ellipse cx="200" cy="150" rx="150" ry="100" fill="#1a1a2e" stroke="#16213e" stroke-width="2"/>
+
+  <!-- Normal brain tissue (darker blue) -->
+  <ellipse cx="200" cy="150" rx="140" ry="90" fill="#0f3460"/>
+
+  <!-- 5-ALA fluorescent tumor areas (bright pink/magenta) -->
+  <circle cx="230" cy="120" r="20" fill="#ff00ff" opacity="0.9"/>
+  <circle cx="230" cy="120" r="12" fill="#ff44ff" opacity="1"/>
+
+  <!-- Additional fluorescent spots -->
+  <circle cx="180" cy="140" r="8" fill="#ff66ff" opacity="0.8"/>
+  <circle cx="260" cy="150" r="12" fill="#ff33ff" opacity="0.9"/>
+
+  <!-- Blood vessels (dark red under blue light) -->
+  <path d="M100 120 Q150 100 200 120 T300 130" stroke="#440000" stroke-width="3" fill="none"/>
+  <path d="M120 180 Q180 160 240 170" stroke="#440000" stroke-width="2" fill="none"/>
+
+  <!-- Surgical instruments (metallic blue reflection) -->
+  <line x1="50" y1="80" x2="150" y2="100" stroke="#4a9eff" stroke-width="4"/>
+  <circle cx="45" cy="77" r="6" fill="#4a9eff"/>
+
+  <!-- Blue light illumination effect -->
+  <circle cx="200" cy="150" r="180" fill="none" stroke="#0066ff" stroke-width="2" opacity="0.3"/>
+
+  <!-- Labels -->
+  <text x="200" y="25" text-anchor="middle" fill="#4a9eff" font-family="Arial" font-size="14">5-ALA Fluorescence Imaging</text>
+  <text x="200" y="280" text-anchor="middle" fill="#ff66ff" font-family="Arial" font-size="12">Fluorescent Tumor Tissue</text>
+
+  <!-- Legend -->
+  <rect x="20" y="220" width="120" height="60" fill="#1a1a2e" stroke="#16213e" stroke-width="1"/>
+  <circle cx="35" cy="235" r="5" fill="#ff44ff"/>
+  <text x="50" y="240" fill="white" font-family="Arial" font-size="10">Tumor (fluorescent)</text>
+  <circle cx="35" cy="250" r="5" fill="#0f3460"/>
+  <text x="50" y="255" fill="white" font-family="Arial" font-size="10">Normal brain</text>
+  <line x1="30" y1="265" x2="40" y2="265" stroke="#440000" stroke-width="2"/>
+  <text x="50" y="270" fill="white" font-family="Arial" font-size="10">Blood vessels</text>
+</svg>

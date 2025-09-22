@@ -1,0 +1,27 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Brain outline -->
+  <ellipse cx="200" cy="150" rx="180" ry="120" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
+
+  <!-- Brain tissue -->
+  <ellipse cx="200" cy="150" rx="170" ry="110" fill="#2d2d2d"/>
+
+  <!-- Brain folds/sulci -->
+  <path d="M50 150 Q100 120 150 150 T250 150 T350 150" stroke="#444" stroke-width="1" fill="none"/>
+  <path d="M60 180 Q120 160 180 180 T300 180" stroke="#444" stroke-width="1" fill="none"/>
+
+  <!-- Glioblastoma tumor (enhanced) -->
+  <circle cx="280" cy="120" r="25" fill="#ff6b6b" opacity="0.8"/>
+  <circle cx="280" cy="120" r="15" fill="#ff4757" opacity="0.9"/>
+
+  <!-- Edema around tumor -->
+  <circle cx="280" cy="120" r="35" fill="#ffa726" opacity="0.3"/>
+
+  <!-- Labels -->
+  <text x="200" y="20" text-anchor="middle" fill="white" font-family="Arial" font-size="14">T1 + Gadolinium MRI</text>
+  <text x="320" y="105" fill="#ff4757" font-family="Arial" font-size="12">Enhancing Tumor</text>
+  <text x="320" y="160" fill="#ffa726" font-family="Arial" font-size="10">Perilesional Edema</text>
+
+  <!-- Scale -->
+  <line x1="30" y1="280" x2="80" y2="280" stroke="white" stroke-width="2"/>
+  <text x="55" y="295" text-anchor="middle" fill="white" font-family="Arial" font-size="10">5cm</text>
+</svg>

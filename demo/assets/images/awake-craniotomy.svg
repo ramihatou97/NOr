@@ -1,0 +1,77 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Operating room background -->
+  <rect width="400" height="300" fill="#f0f8ff"/>
+
+  <!-- Patient's head (side view) -->
+  <ellipse cx="150" cy="120" rx="60" ry="50" fill="#fdbcb4" stroke="#d4a574" stroke-width="2"/>
+
+  <!-- Hair -->
+  <path d="M90 100 Q110 70 140 75 Q170 80 190 90 Q200 100 190 110" fill="#8b4513"/>
+
+  <!-- Surgical opening -->
+  <rect x="170" y="90" width="40" height="30" fill="#ff6b6b" stroke="#d63031" stroke-width="2"/>
+
+  <!-- Brain tissue visible -->
+  <ellipse cx="190" cy="105" rx="15" ry="12" fill="#ff7675"/>
+
+  <!-- Surgical instruments -->
+  <line x1="220" y1="70" x2="185" y2="95" stroke="#c0c0c0" stroke-width="3"/>
+  <circle cx="225" cy="65" r="4" fill="#c0c0c0"/>
+
+  <!-- Electrode strips -->
+  <rect x="175" y="100" width="20" height="2" fill="#ffd700"/>
+  <rect x="175" y="105" width="20" height="2" fill="#ffd700"/>
+
+  <!-- Patient's face (awake and alert) -->
+  <circle cx="120" cy="110" r="2" fill="#2d3436"/> <!-- Eye -->
+  <path d="M105 125 Q115 130 125 125" stroke="#2d3436" stroke-width="1" fill="none"/> <!-- Mouth -->
+
+  <!-- Speech therapist -->
+  <ellipse cx="80" cy="180" rx="25" ry="35" fill="#fdbcb4"/>
+  <circle cx="80" cy="160" r="15" fill="#fdbcb4"/>
+  <circle cx="77" cy="157" r="1" fill="#2d3436"/>
+  <circle cx="83" cy="157" r="1" fill="#2d3436"/>
+  <path d="M75 165 Q80 168 85 165" stroke="#2d3436" stroke-width="1" fill="none"/>
+
+  <!-- Speech bubble -->
+  <ellipse cx="120" cy="180" rx="40" ry="20" fill="white" stroke="#2d3436" stroke-width="1"/>
+  <polygon points="95,185 85,195 105,190" fill="white" stroke="#2d3436" stroke-width="1"/>
+  <text x="120" y="185" text-anchor="middle" fill="#2d3436" font-family="Arial" font-size="10">"Name the objects"</text>
+
+  <!-- Monitoring equipment -->
+  <rect x="250" y="50" width="120" height="80" fill="#2d3436" stroke="#636e72" stroke-width="2"/>
+
+  <!-- EEG traces -->
+  <path d="M260 70 L270 65 L280 75 L290 60 L300 80 L310 55 L320 85 L330 65 L340 75 L350 70"
+        stroke="#00ff88" stroke-width="2" fill="none"/>
+  <path d="M260 90 L270 85 L280 95 L290 80 L300 100 L310 75 L320 105 L330 85 L340 95 L350 90"
+        stroke="#00ff88" stroke-width="2" fill="none"/>
+  <path d="M260 110 L270 105 L280 115 L290 100 L300 120 L310 95 L320 125 L330 105 L340 115 L350 110"
+        stroke="#00ff88" stroke-width="2" fill="none"/>
+
+  <!-- Monitor labels -->
+  <text x="310" y="140" text-anchor="middle" fill="white" font-family="Arial" font-size="8">ECoG Monitoring</text>
+
+  <!-- Neurosurgeon -->
+  <ellipse cx="220" cy="150" rx="15" ry="25" fill="#74b9ff"/>
+  <circle cx="220" cy="125" r="10" fill="#fdbcb4"/>
+  <rect x="215" y="120" width="10" height="5" fill="white"/> <!-- Surgical mask -->
+
+  <!-- Title -->
+  <text x="200" y="20" text-anchor="middle" fill="#2d3436" font-family="Arial" font-size="14">Awake Craniotomy - Language Mapping</text>
+
+  <!-- Labels -->
+  <text x="190" y="50" fill="#d63031" font-family="Arial" font-size="10">Craniotomy Site</text>
+  <text x="190" y="140" fill="#ffd700" font-family="Arial" font-size="10">Electrode Grid</text>
+  <text x="80" y="250" text-anchor="middle" fill="#2d3436" font-family="Arial" font-size="10">Speech Therapist</text>
+
+  <!-- Arrow pointing to electrode -->
+  <path d="M210 115 L195 108" stroke="#ffd700" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ffd700"/>
+    </marker>
+  </defs>
+</svg>

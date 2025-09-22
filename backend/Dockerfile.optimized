@@ -1,0 +1,71 @@
+# backend/Dockerfile.optimized
+# Optimized Docker image for enhanced KOO Platform backend
+# Includes medical NLP models and PDF processing optimization
+
+FROM python:3.11-slim-bullseye
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies for PDF processing and medical NLP
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    libpq-dev \
+    libffi-dev \
+    libssl-dev \
+    # PDF processing dependencies
+    poppler-utils \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    # Image processing dependencies
+    libopencv-dev \
+    python3-opencv \
+    # Medical imaging dependencies
+    libgdcm-dev \
+    # System monitoring
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.optimized.txt .
+RUN pip install --no-cache-dir -r requirements.optimized.txt
+
+# Download spaCy medical model
+RUN python -m spacy download en_core_web_sm
+
+# Download additional medical NLP models
+RUN pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_core_sci_sm-0.5.1.tar.gz
+
+# Create necessary directories
+RUN mkdir -p /app/uploads /app/temp /app/checkpoints /app/logs
+
+# Copy application code
+COPY . .
+
+# Set file permissions
+RUN chmod +x /app/scripts/entrypoint.optimized.sh
+
+# Create non-root user for security
+RUN groupadd -r koo && useradd -r -g koo koo
+RUN chown -R koo:koo /app
+USER koo
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Entry point
+ENTRYPOINT ["/app/scripts/entrypoint.optimized.sh"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

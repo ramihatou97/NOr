@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOO Platform - Medical AI Chapter Editor Demo</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>KOO Platform</span>
+                    <span class="demo-badge">DEMO</span>
+                </div>
+                <div class="status-indicators">
+                    <div class="status-item">
+                        <i class="fas fa-circle status-green"></i>
+                        <span>AI Online</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Isolated Demo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <span class="gradient-text">AI-Powered Medical</span><br>
+                        Chapter Editor
+                    </h1>
+                    <p class="hero-subtitle">
+                        Experience advanced medical content creation with real-time AI analysis,
+                        nuance detection, and intelligent quality assessment.
+                    </p>
+                    <div class="hero-features">
+                        <div class="feature-badge">
+                            <i class="fas fa-brain"></i>
+                            <span>Nuance Detection</span>
+                        </div>
+                        <div class="feature-badge">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Quality Assessment</span>
+                        </div>
+                        <div class="feature-badge">
+                            <i class="fas fa-microscope"></i>
+                            <span>Research Integration</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interactive Editor -->
+            <section class="editor-section">
+                <div class="editor-layout">
+                    <!-- Main Editor Panel -->
+                    <div class="editor-main">
+                        <div class="editor-header">
+                            <input type="text" id="chapter-title" class="title-input"
+                                   placeholder="Chapter Title" value="Acute Myocardial Infarction: Advanced Diagnostic Protocols">
+                            <div class="editor-controls">
+                                <button class="btn btn-primary" id="analyze-btn">
+                                    <i class="fas fa-magic"></i>
+                                    Analyze Content
+                                </button>
+                                <button class="btn btn-secondary" id="nuance-test-btn">
+                                    <i class="fas fa-search"></i>
+                                    Test Nuance Merge
+                                </button>
+                                <button class="btn btn-accent" id="gemini-analysis-btn" onclick="runGeminiAnalysis()">
+                                    <i class="fas fa-google"></i>
+                                    Gemini Analysis
+                                </button>
+                                <div class="export-controls">
+                                    <button class="btn btn-outline" onclick="exportChapter('pdf')">
+                                        <i class="fas fa-file-pdf"></i>
+                                        Export PDF
+                                    </button>
+                                    <button class="btn btn-outline" onclick="exportChapter('word')">
+                                        <i class="fas fa-file-word"></i>
+                                        Export Word
+                                    </button>
+                                    <button class="btn btn-outline" onclick="shareChapter()">
+                                        <i class="fas fa-share-alt"></i>
+                                        Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quality Indicators -->
+                        <div class="quality-bar">
+                            <div class="quality-item">
+                                <span class="quality-label">Quality Score</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill quality-score" style="width: 87%"></div>
+                                </div>
+                                <span class="quality-value" id="quality-score">87%</span>
+                            </div>
+                            <div class="quality-item">
+                                <span class="quality-label">AI Confidence</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill ai-confidence" style="width: 92%"></div>
+                                </div>
+                                <span class="quality-value" id="ai-confidence">92%</span>
+                            </div>
+                            <div class="status-pills">
+                                <span class="pill pill-success" id="conflicts-pill">
+                                    <i class="fas fa-check"></i> 1 Minor Conflict
+                                </span>
+                                <span class="pill pill-info" id="research-pill">
+                                    <i class="fas fa-book"></i> 3 Research Suggestions
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Content Editor -->
+                        <div class="editor-container">
+                            <textarea id="content-editor" class="content-textarea"
+                                      placeholder="Start writing your medical chapter content...">Loading sample content...</textarea>
+                            <div class="editor-overlay" id="editor-overlay">
+                                <div class="analysis-indicator">
+                                    <i class="fas fa-brain fa-spin"></i>
+                                    <span>AI Analyzing Content...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Suggestions -->
+                        <div class="suggestions-panel" id="suggestions-panel">
+                            <h4><i class="fas fa-lightbulb"></i> AI Suggestions</h4>
+                            <div class="suggestion-list" id="suggestion-list">
+                                <!-- Dynamic suggestions will appear here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Intelligence Sidebar -->
+                    <div class="intelligence-sidebar">
+                        <!-- API Configuration Panel -->
+                        <div class="panel">
+                            <h4><i class="fas fa-key"></i> API Configuration</h4>
+                            <div class="api-keys-panel">
+                                <div class="api-service">
+                                    <span class="service-name">OpenAI GPT-4</span>
+                                    <span class="status-badge active">Active</span>
+                                    <input type="password" placeholder="sk-..." class="api-input" data-service="openai">
+                                </div>
+                                <div class="api-service">
+                                    <span class="service-name">PubMed</span>
+                                    <span class="status-badge active">Active</span>
+                                    <input type="password" placeholder="pm_..." class="api-input" data-service="pubmed">
+                                </div>
+                                <div class="api-service">
+                                    <span class="service-name">Google Scholar</span>
+                                    <span class="status-badge active">Active</span>
+                                    <input type="password" placeholder="gs_..." class="api-input" data-service="google_scholar">
+                                </div>
+                                <div class="api-service">
+                                    <span class="service-name">Perplexity</span>
+                                    <span class="status-badge active">Active</span>
+                                    <input type="password" placeholder="pplx_..." class="api-input" data-service="perplexity">
+                                </div>
+                                <div class="api-service">
+                                    <span class="service-name">Claude</span>
+                                    <span class="status-badge active">Active</span>
+                                    <input type="password" placeholder="cl-..." class="api-input" data-service="claude">
+                                </div>
+                                <div class="api-service">
+                                    <span class="service-name">Google Gemini</span>
+                                    <span class="status-badge active">Active</span>
+                                    <input type="password" placeholder="AIza..." class="api-input" data-service="gemini">
+                                </div>
+                                <div class="api-service">
+                                    <span class="service-name">Together AI</span>
+                                    <span class="status-badge active">Active</span>
+                                    <input type="password" placeholder="tog_..." class="api-input" data-service="together">
+                                </div>
+                                <button class="btn btn-sm btn-primary" onclick="updateApiKeys()">Update Keys</button>
+                            </div>
+                        </div>
+
+                        <!-- PDF Library Panel -->
+                        <div class="panel">
+                            <h4><i class="fas fa-file-pdf"></i> PDF Library (15,847 papers)</h4>
+                            <div class="pdf-library">
+                                <div class="search-controls">
+                                    <div class="search-box">
+                                        <input type="text" placeholder="Search medical literature..." class="library-search" id="library-search">
+                                        <select class="search-source" id="search-source">
+                                            <option value="local">Local Library</option>
+                                            <option value="pubmed">PubMed</option>
+                                            <option value="google_scholar">Google Scholar</option>
+                                            <option value="perplexity">Perplexity AI</option>
+                                        </select>
+                                        <button class="btn btn-sm" onclick="searchLibrary()"><i class="fas fa-search"></i></button>
+                                    </div>
+                                </div>
+                                <div class="search-results" id="search-results">
+                                    <div class="recent-papers">
+                                        <div class="paper-item referenceable" data-id="pdf_001">
+                                            <h5>Advances in Glioblastoma Treatment 2024</h5>
+                                            <p>Chen, L. et al. - Nature Neuroscience</p>
+                                            <span class="relevance">95% relevant</span>
+                                            <div class="paper-actions">
+                                                <button class="btn btn-xs" onclick="addReference('pdf_001')">
+                                                    <i class="fas fa-plus"></i> Add Ref
+                                                </button>
+                                                <button class="btn btn-xs" onclick="viewAbstract('pdf_001')">
+                                                    <i class="fas fa-eye"></i> Abstract
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="paper-item referenceable" data-id="pdf_002">
+                                            <h5>5-ALA Fluorescence in Brain Surgery</h5>
+                                            <p>Mueller, T. et al. - J. Neurosurgery</p>
+                                            <span class="relevance">92% relevant</span>
+                                            <div class="paper-actions">
+                                                <button class="btn btn-xs" onclick="addReference('pdf_002')">
+                                                    <i class="fas fa-plus"></i> Add Ref
+                                                </button>
+                                                <button class="btn btn-xs" onclick="viewAbstract('pdf_002')">
+                                                    <i class="fas fa-eye"></i> Abstract
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="paper-item referenceable" data-id="pdf_003">
+                                            <h5>Awake Craniotomy Protocols</h5>
+                                            <p>Wilson, J. et al. - Neurosurgery</p>
+                                            <span class="relevance">89% relevant</span>
+                                            <div class="paper-actions">
+                                                <button class="btn btn-xs" onclick="addReference('pdf_003')">
+                                                    <i class="fas fa-plus"></i> Add Ref
+                                                </button>
+                                                <button class="btn btn-xs" onclick="viewAbstract('pdf_003')">
+                                                    <i class="fas fa-eye"></i> Abstract
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="library-controls">
+                                    <button class="btn btn-sm btn-outline" onclick="uploadPDF()">
+                                        <i class="fas fa-upload"></i> Upload PDF
+                                    </button>
+                                    <select class="citation-style" id="citation-style">
+                                        <option value="ama">AMA Style</option>
+                                        <option value="vancouver">Vancouver</option>
+                                        <option value="apa">APA Style</option>
+                                        <option value="mla">MLA Style</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Chapters Panel -->
+                        <div class="panel">
+                            <h4><i class="fas fa-users"></i> Live Chapters (3 active)</h4>
+                            <div class="live-chapters">
+                                <div class="chapter-session">
+                                    <h5>Glioblastoma Management</h5>
+                                    <div class="collaborators">
+                                        <span class="user-avatar">DS</span>
+                                        <span class="user-avatar">DJ</span>
+                                        <span class="user-avatar">DL</span>
+                                    </div>
+                                    <span class="changes-badge">7 pending</span>
+                                </div>
+                                <div class="chapter-session">
+                                    <h5>Meningioma Protocols</h5>
+                                    <div class="collaborators">
+                                        <span class="user-avatar">DW</span>
+                                        <span class="user-avatar">DB</span>
+                                    </div>
+                                    <span class="changes-badge">2 pending</span>
+                                </div>
+                                <div class="recent-activity">
+                                    <p><strong>Dr. Smith</strong> edited section <span>2 min ago</span></p>
+                                    <p><strong>Dr. Johnson</strong> added reference <span>5 min ago</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Integration Status -->
+                        <div class="panel">
+                            <h4><i class="fas fa-plug"></i> System Integrations</h4>
+                            <div class="integrations">
+                                <div class="integration-group">
+                                    <h5>EMR Systems</h5>
+                                    <div class="integration-item">
+                                        <span>Epic</span>
+                                        <span class="status-badge active">Connected</span>
+                                    </div>
+                                    <div class="integration-item">
+                                        <span>Cerner</span>
+                                        <span class="status-badge inactive">Disconnected</span>
+                                    </div>
+                                </div>
+                                <div class="integration-group">
+                                    <h5>AI Services</h5>
+                                    <div class="integration-item">
+                                        <span>GPT-4</span>
+                                        <span class="usage-badge">156 calls today</span>
+                                    </div>
+                                    <div class="integration-item">
+                                        <span>Claude</span>
+                                        <span class="usage-badge">89 calls today</span>
+                                    </div>
+                                    <div class="integration-item">
+                                        <span>Gemini Pro</span>
+                                        <span class="usage-badge">73 calls today</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="stats-panel">
+                            <h3><i class="fas fa-chart-bar"></i> Live Intelligence</h3>
+                            <div class="stat-grid">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="live-quality">87%</div>
+                                    <div class="stat-label">Quality</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="live-conflicts">1</div>
+                                    <div class="stat-label">Conflicts</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="live-research">3</div>
+                                    <div class="stat-label">Research</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="live-workflow">82%</div>
+                                    <div class="stat-label">Workflow</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nuance Detection Panel -->
+                        <div class="panel">
+                            <h4><i class="fas fa-search-plus"></i> Nuance Detection</h4>
+                            <div class="nuance-demo" id="nuance-demo">
+                                <div class="nuance-example">
+                                    <div class="nuance-before">
+                                        <label>Before:</label>
+                                        <p>"The patient shows symptoms of infection."</p>
+                                    </div>
+                                    <div class="nuance-after">
+                                        <label>After Enhancement:</label>
+                                        <p>"The patient demonstrates clinical symptoms of bacterial infection requiring antibiotic treatment."</p>
+                                    </div>
+                                    <div class="nuance-stats">
+                                        <span class="nuance-stat">
+                                            <i class="fas fa-shield-check"></i>
+                                            Information Loss: <strong>Minimal</strong>
+                                        </span>
+                                        <span class="nuance-stat">
+                                            <i class="fas fa-percentage"></i>
+                                            Confidence: <strong>87%</strong>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Research Recommendations -->
+                        <div class="panel">
+                            <h4><i class="fas fa-microscope"></i> Research Insights</h4>
+                            <div class="research-list">
+                                <div class="research-item">
+                                    <div class="research-header">
+                                        <span class="research-relevance">94%</span>
+                                        <h5>High-Sensitivity Troponin</h5>
+                                    </div>
+                                    <p>Recent advances in troponin assays improve early detection...</p>
+                                    <div class="research-meta">
+                                        <span><i class="fas fa-user"></i> Smith, J. et al.</span>
+                                        <span><i class="fas fa-calendar"></i> 2024</span>
+                                    </div>
+                                </div>
+                                <div class="research-item">
+                                    <div class="research-header">
+                                        <span class="research-relevance">88%</span>
+                                        <h5>AI-Enhanced ECG Analysis</h5>
+                                    </div>
+                                    <p>Machine learning demonstrates superior ECG interpretation...</p>
+                                    <div class="research-meta">
+                                        <span><i class="fas fa-user"></i> Chen, L. et al.</span>
+                                        <span><i class="fas fa-calendar"></i> 2024</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quality Dimensions -->
+                        <div class="panel">
+                            <h4><i class="fas fa-medal"></i> Quality Dimensions</h4>
+                            <div class="quality-dimensions">
+                                <div class="dimension">
+                                    <span>Medical Accuracy</span>
+                                    <div class="progress-bar small">
+                                        <div class="progress-fill" style="width: 89%"></div>
+                                    </div>
+                                    <span>89%</span>
+                                </div>
+                                <div class="dimension">
+                                    <span>Clarity</span>
+                                    <div class="progress-bar small">
+                                        <div class="progress-fill" style="width: 92%"></div>
+                                    </div>
+                                    <span>92%</span>
+                                </div>
+                                <div class="dimension">
+                                    <span>Completeness</span>
+                                    <div class="progress-bar small">
+                                        <div class="progress-fill" style="width: 85%"></div>
+                                    </div>
+                                    <span>85%</span>
+                                </div>
+                                <div class="dimension">
+                                    <span>Clinical Relevance</span>
+                                    <div class="progress-bar small">
+                                        <div class="progress-fill" style="width: 91%"></div>
+                                    </div>
+                                    <span>91%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Demo Features -->
+            <section class="features-section">
+                <h2>Explore AI-Powered Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card" data-feature="nuance">
+                        <div class="feature-icon">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                        <h3>Nuance Detection</h3>
+                        <p>Advanced AI identifies subtle content improvements while maintaining medical accuracy with minimal information loss risk.</p>
+                        <div class="feature-demo">
+                            <button class="demo-btn" onclick="demonstrateNuance()">Try Demo</button>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" data-feature="quality">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Quality Assessment</h3>
+                        <p>Real-time evaluation across multiple dimensions including medical accuracy, clarity, and clinical relevance.</p>
+                        <div class="feature-demo">
+                            <button class="demo-btn" onclick="demonstrateQuality()">Try Demo</button>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" data-feature="research">
+                        <div class="feature-icon">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <h3>Research Integration</h3>
+                        <p>Intelligent suggestions from current medical literature with relevance scoring and citation management.</p>
+                        <div class="feature-demo">
+                            <button class="demo-btn" onclick="demonstrateResearch()">Try Demo</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h4>KOO Platform Demo</h4>
+                    <p>Isolated demonstration environment - completely separate from main application</p>
+                    <div class="demo-stats">
+                        <span><i class="fas fa-server"></i> Port: 9000</span>
+                        <span><i class="fas fa-shield-alt"></i> Zero Impact</span>
+                        <span><i class="fas fa-trash"></i> Fully Removable</span>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <button class="btn btn-outline" onclick="resetDemo()">
+                        <i class="fas fa-redo"></i> Reset Demo
+                    </button>
+                    <button class="btn btn-outline" onclick="toggleFullscreen()">
+                        <i class="fas fa-expand"></i> Fullscreen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Initializing AI Demo...</h3>
+            <p>Loading medical intelligence systems</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/assets/demo.js"></script>
+</body>
+</html>
