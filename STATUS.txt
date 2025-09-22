@@ -1,0 +1,3 @@
+KOO Platform - Clean Original State
+Created: Mon, Sep 22, 2025  2:34:30 AM
+State: Pre-docker-compose error

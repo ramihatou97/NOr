@@ -1,0 +1,404 @@
+# Enhanced KOO Platform - Self-Contained Deployment
+# Production-ready Docker Compose configuration with all intelligence modules
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # DATABASE SERVICES
+  # ============================================================================
+
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: koo-postgres
+    environment:
+      POSTGRES_DB: koo_platform
+      POSTGRES_USER: koo_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-koo_secure_password_2024}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/schemas.sql:/docker-entrypoint-initdb.d/01-schemas.sql
+      - ./backend/database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U koo_user -d koo_platform"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - koo-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: koo-redis
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-koo_redis_password_2024}
+    command: redis-server --requirepass ${REDIS_PASSWORD:-koo_redis_password_2024} --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - koo-network
+
+  # ============================================================================
+  # BACKEND SERVICES
+  # ============================================================================
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: koo-backend
+    environment:
+      # Database Configuration
+      DATABASE_URL: postgresql://koo_user:${POSTGRES_PASSWORD:-koo_secure_password_2024}@postgres:5432/koo_platform
+
+      # Redis Configuration
+      REDIS_URL: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/0
+
+      # Application Configuration
+      SECRET_KEY: ${SECRET_KEY:-koo_ultra_secure_secret_key_2024_production}
+      DEBUG: "false"
+      ENVIRONMENT: production
+
+      # CORS Configuration
+      ALLOWED_HOSTS: localhost,127.0.0.1,koo-frontend,frontend
+      CORS_ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+
+      # Intelligence Configuration
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+      # External APIs
+      PUBMED_API_KEY: ${PUBMED_API_KEY:-}
+      CROSSREF_API_EMAIL: ${CROSSREF_API_EMAIL:-}
+
+      # Performance Configuration
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/2
+
+      # Monitoring
+      SENTRY_DSN: ${SENTRY_DSN:-}
+
+      # Feature Flags
+      ENABLE_AI_FEATURES: "true"
+      ENABLE_REAL_TIME_ANALYSIS: "true"
+      ENABLE_PREDICTIVE_INTELLIGENCE: "true"
+      ENABLE_KNOWLEDGE_GRAPH: "true"
+      ENABLE_PERFORMANCE_MONITORING: "true"
+    volumes:
+      - backend_media:/app/media
+      - backend_logs:/app/logs
+      - model_cache:/app/models
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - koo-network
+
+  # Celery Worker for Background Tasks
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: koo-celery-worker
+    command: celery -A core.celery_app worker --loglevel=info --concurrency=4
+    environment:
+      # Same environment as backend
+      DATABASE_URL: postgresql://koo_user:${POSTGRES_PASSWORD:-koo_secure_password_2024}@postgres:5432/koo_platform
+      REDIS_URL: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-koo_ultra_secure_secret_key_2024_production}
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/2
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ENVIRONMENT: production
+    volumes:
+      - backend_media:/app/media
+      - backend_logs:/app/logs
+      - model_cache:/app/models
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - koo-network
+
+  # Celery Beat for Scheduled Tasks
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: koo-celery-beat
+    command: celery -A core.celery_app beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      DATABASE_URL: postgresql://koo_user:${POSTGRES_PASSWORD:-koo_secure_password_2024}@postgres:5432/koo_platform
+      REDIS_URL: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-koo_ultra_secure_secret_key_2024_production}
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/2
+      ENVIRONMENT: production
+    volumes:
+      - backend_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - koo-network
+
+  # ============================================================================
+  # FRONTEND SERVICES
+  # ============================================================================
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        REACT_APP_API_URL: http://localhost:8000
+        REACT_APP_WS_URL: ws://localhost:8000
+        REACT_APP_ENVIRONMENT: production
+        REACT_APP_VERSION: ${APP_VERSION:-1.0.0}
+    container_name: koo-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - koo-network
+
+  # ============================================================================
+  # MONITORING AND OBSERVABILITY
+  # ============================================================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: koo-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    networks:
+      - koo-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: koo-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-koo_grafana_admin_2024}
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - koo-network
+
+  # ============================================================================
+  # REVERSE PROXY AND SSL
+  # ============================================================================
+
+  nginx:
+    image: nginx:alpine
+    container_name: koo-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - nginx_logs:/var/log/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - koo-network
+
+  # ============================================================================
+  # ADDITIONAL SERVICES
+  # ============================================================================
+
+  # Flower for Celery Monitoring
+  flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: koo-flower
+    command: celery -A core.celery_app flower --port=5555
+    environment:
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-koo_redis_password_2024}@redis:6379/2
+      FLOWER_BASIC_AUTH: ${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-koo_flower_2024}
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - koo-network
+
+  # Vector Database for Embeddings (Qdrant)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: koo-qdrant
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - koo-network
+
+  # ElasticSearch for Full-text Search
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: koo-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - koo-network
+
+  # ============================================================================
+  # BACKUP SERVICE
+  # ============================================================================
+
+  backup:
+    image: postgres:15
+    container_name: koo-backup
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-koo_secure_password_2024}
+    volumes:
+      - backup_data:/backups
+      - ./scripts/backup.sh:/backup.sh
+    command: >
+      sh -c "
+        chmod +x /backup.sh &&
+        while true; do
+          /backup.sh
+          sleep 86400
+        done
+      "
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - koo-network
+
+# ============================================================================
+# VOLUMES
+# ============================================================================
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_media:
+    driver: local
+  backend_logs:
+    driver: local
+  model_cache:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  nginx_logs:
+    driver: local
+  qdrant_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  backup_data:
+    driver: local
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+
+networks:
+  koo-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
